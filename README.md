@@ -15,25 +15,6 @@ A modern web application that converts images to audio waveforms and back to ima
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 
 ## Quick Start
-
-1. **Clone or download this repository**
-2. **Run the startup script**:
-   ```bash
-   python start.py
-   ```
-   
-   This will:
-   - Install all dependencies
-   - Create a sample image for testing
-   - Start the web server
-   - Open your browser automatically
-
-3. **Access the app** at: http://localhost:5000
-
-## Manual Installation
-
-If you prefer to set up manually:
-
 1. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
