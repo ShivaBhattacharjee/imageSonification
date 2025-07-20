@@ -25,7 +25,7 @@ A modern web application that converts images to audio waveforms and back to ima
    python app.py
    ```
 
-3. **Open your browser** to: http://localhost:5000
+3. **Open your browser** to: http://localhost:8080
 
 ## Usage
 
