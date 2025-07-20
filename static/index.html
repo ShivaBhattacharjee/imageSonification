@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Sonification</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Image Sonification</h1>
+            <p>Convert images to audio and back using NASA-inspired techniques</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('encode')">
+                Image to Audio
+            </button>
+            <button class="tab-button" onclick="switchTab('decode')">
+                Audio to Image
+            </button>
+            <button class="tab-button" onclick="switchTab('about')">
+                About
+            </button>
+        </div>
+
+        <!-- Encode Tab -->
+        <div id="encode-tab" class="tab-content active">
+            <div class="card">
+                <h2>Upload Image</h2>
+                <div class="upload-area" id="image-upload-area">
+                    <div class="upload-content">
+                        <p>Drag & drop an image here or click to browse</p>
+                        <p class="upload-hint">Supports PNG, JPEG, BMP, TIFF, GIF</p>
+                    </div>
+                    <input type="file" id="image-input" accept="image/*" hidden>
+                </div>
+                
+                <div id="image-preview" class="preview-area" style="display: none;">
+                    <img id="preview-img" alt="Preview">
+                    <div class="preview-info">
+                        <p id="image-info"></p>
+                        <button class="btn-secondary" onclick="clearImage()">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Encoding Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label>Encoding Method:</label>
+                        <div class="method-selection">
+                            <label class="radio-option">
+                                <input type="radio" name="method" value="frequency" checked>
+                                <span class="radio-custom"></span>
+                                <div class="method-info">
+                                    <strong>Frequency Mapping</strong>
+                                    <small>Maps brightness to frequency</small>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="method" value="amplitude">
+                                <span class="radio-custom"></span>
+                                <div class="method-info">
+                                    <strong>Amplitude Modulation</strong>
+                                    <small>RGB values control amplitude</small>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="method" value="phase">
+                                <span class="radio-custom"></span>
+                                <div class="method-info">
+                                    <strong>Phase Encoding</strong>
+                                    <small>Color in wave phase</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="duration">Audio Duration (seconds):</label>
+                        <input type="range" id="duration" min="1" max="60" value="10" step="1">
+                        <span id="duration-value">10</span>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="sample-rate">Sample Rate (Hz):</label>
+                        <select id="sample-rate">
+                            <option value="22050">22,050 Hz</option>
+                            <option value="44100" selected>44,100 Hz (CD Quality)</option>
+                            <option value="48000">48,000 Hz</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button id="encode-btn" class="btn-primary" disabled onclick="encodeImage()">
+                    Encode to Audio
+                </button>
+            </div>
+
+            <div id="encode-result" class="card" style="display: none;">
+                <h2>Encoding Complete</h2>
+                <div class="result-content">
+                    <div class="audio-player">
+                        <audio id="encoded-audio" controls></audio>
+                    </div>
+                    <div class="result-info">
+                        <p><strong>Method:</strong> <span id="result-method"></span></p>
+                        <p><strong>Duration:</strong> <span id="result-duration"></span>s</p>
+                        <p><strong>Original Size:</strong> <span id="result-size"></span></p>
+                        <p class="info-note">Metadata is embedded in the audio file</p>
+                    </div>
+                    <div class="download-buttons">
+                        <button class="btn-secondary" onclick="downloadAudio()">
+                            Download Audio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decode Tab -->
+        <div id="decode-tab" class="tab-content">
+            <div class="card">
+                <h2>Upload Audio</h2>
+                
+                <div class="upload-section">
+                    <h3>Audio File (.wav)</h3>
+                    <div class="upload-area" id="audio-upload-area">
+                        <div class="upload-content">
+                            <p>Drag & drop audio file here or click to browse</p>
+                            <p class="upload-hint">WAV files with embedded metadata only</p>
+                        </div>
+                        <input type="file" id="audio-input" accept=".wav" hidden>
+                    </div>
+                </div>
+                
+                <div id="audio-preview" class="preview-area" style="display: none;">
+                    <div class="audio-waveform">
+                        <canvas id="waveform-canvas"></canvas>
+                    </div>
+                    <div class="preview-info">
+                        <p id="audio-info"></p>
+                        <button class="btn-secondary" onclick="clearAudio()">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+                
+                <button id="decode-btn" class="btn-primary" disabled onclick="decodeAudio()">
+                    Decode to Image
+                </button>
+            </div>
+
+            <div id="decode-result" class="card" style="display: none;">
+                <h2>Decoding Complete</h2>
+                <div class="result-content">
+                    <div class="image-result">
+                        <img id="decoded-image" alt="Decoded Image">
+                    </div>
+                    <div class="result-info">
+                        <p><strong>Method:</strong> <span id="decode-method"></span></p>
+                        <p><strong>Original Size:</strong> <span id="decode-original-size"></span></p>
+                        <p><strong>Reconstructed Size:</strong> <span id="decode-reconstructed-size"></span></p>
+                    </div>
+                    <div class="download-buttons">
+                        <button class="btn-secondary" onclick="downloadImage()">
+                            Download Image
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about-tab" class="tab-content">
+            <div class="card">
+                <h2>About Image Sonification</h2>
+                <div class="about-content">
+                    <p>This application converts images to audio waveforms and back to images using techniques inspired by NASA's sonification projects.</p>
+                    
+                    <h3>How It Works</h3>
+                    <div class="encoding-methods">
+                        <div class="method-card">
+                            <h4>Frequency Mapping</h4>
+                            <p>Maps pixel brightness to audio frequency. Brighter pixels produce higher frequencies, creating a direct audio representation of image luminance.</p>
+                        </div>
+                        
+                        <div class="method-card">
+                            <h4>Amplitude Modulation</h4>
+                            <p>Uses RGB color values to control amplitude variations on different carrier frequencies. Each color channel modulates a separate frequency band.</p>
+                        </div>
+                        
+                        <div class="method-card">
+                            <h4>Phase Encoding</h4>
+                            <p>Encodes color information in wave phase shifts. Different colors create different phase relationships between frequency components.</p>
+                        </div>
+                    </div>
+                    
+                    <h3>Usage Tips</h3>
+                    <ul class="tips-list">
+                        <li>Higher resolution images contain more detail but create longer processing times</li>
+                        <li>Different encoding methods work better for different types of images</li>
+                        <li>All metadata is embedded directly in the audio - no separate files needed</li>
+                        <li>Experiment with different audio durations to find the best balance</li>
+                    </ul>
+                    
+                    <h3>Supported Formats</h3>
+                    <div class="format-support">
+                        <div class="format-group">
+                            <h4>Images</h4>
+                            <p>PNG, JPEG, BMP, TIFF, GIF</p>
+                        </div>
+                        <div class="format-group">
+                            <h4>Audio</h4>
+                            <p>WAV with embedded metadata</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loading-text">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Image Sonification App - Navdyut AI tech and research labs</p>
+        </div>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+outputs
+__pycache__
+uploads
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.svg
+*.webp
